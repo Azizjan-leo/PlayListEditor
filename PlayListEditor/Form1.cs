@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WMPLib;
+using Microsoft.VisualBasic;
 
 namespace PlayListEditor
 {
@@ -26,23 +27,37 @@ namespace PlayListEditor
             Length = length;
         }
 
+        public string ToCSVLine()
+        {
+            return Name + "," + Length.ToString(@"hh\:mm\:ss");
+        }
+
     }
     public partial class Form1 : Form
     {
-        
-      
         readonly List<MediaItem> Media;
-
+        readonly List<string> Files;
+        private List<string> LocalPLs;
+        
         public Form1()
         {
             Media = new List<MediaItem>();
+            Files = new List<string>();
+            LocalPLs = new List<string>();
+            ContextMenu contextMenu = new ContextMenu();
+            contextMenu.MenuItems.Add(new MenuItem("Create playlist", CreatePL));
+          
             InitializeComponent();
+            LocalPLsLB.ContextMenu = contextMenu;
         }
 
+        /// <summary>
+        /// Loads all local files to Media list
+        /// </summary>
         private void LoadMedia()
         {
             var files = Directory
-             .GetFiles(string.Format(@"{0}\Media\", Application.StartupPath))
+             .GetFiles(Settings.MediaFolder)
              .Where(file => Settings.AllowedExtensions.Any(file.ToLower().EndsWith))
              .ToList();
 
@@ -64,33 +79,63 @@ namespace PlayListEditor
                     ));
             }
         }
-        private async Task LoadPlaylists()
+        private void CreatePL(object sender, EventArgs e) 
         {
-            foreach (var item in Settings.DefPLs)
+            Form prompt = new Form()
             {
-                string fileName = String.Format(@"{0}\LocalPlaylists\{1}", Application.StartupPath, item);
+                Width = 500,
+                Height = 150,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                Text = "Enter playlist's name",
+                StartPosition = FormStartPosition.CenterScreen
+            };
+            Label textLabel = new Label() { Left = 50, Top = 20, Text = "Playlist" };
+            TextBox textBox = new TextBox() { Left = 50, Top = 50, Width = 400 };
+            Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 70, DialogResult = DialogResult.OK };
+            confirmation.Click += (s, a) => { prompt.Close(); };
+            prompt.Controls.Add(textBox);
+            prompt.Controls.Add(confirmation);
+            prompt.Controls.Add(textLabel);
+            prompt.AcceptButton = confirmation;
 
-                if (File.Exists(fileName))
-                {
-
-                }
+            if(prompt.ShowDialog() == DialogResult.OK)
+            {
+                LocalPLsLB.Items.Add(textBox.Text);
             }
-
-            sb.AppendLine(String.Format(@"{0},{1}", Path.GetFileNameWithoutExtension(file), duration.ToString(@"hh\:mm\:ss")));
+                
 
         }
-        private void Form1_Load(object sender, EventArgs e)
+        private void WriteToFiles()
         {
-            LoadMedia();
-            Task.Run(() => LoadPlaylists());
-
-           
+            // Write to Source.csv
+            var file = Application.StartupPath + "\\Source.csv";
             var sb = new StringBuilder();
-            
-           
-            File.AppendAllText(fileName, sb.ToString());
+            foreach (var item in Media)
+            {                
+                sb.AppendLine(item.ToCSVLine());
+            }
+            File.WriteAllText(file, sb.ToString());
 
-            using (var reader = new StreamReader(String.Format(@"{0}\LocalPlaylists\Source.csv", Application.StartupPath)))
+            // Checking if all default files are there
+            foreach (var item in Settings.DefPLs)
+            {
+                string fileName = Settings.LocalPLFolder + item;
+
+                if (!File.Exists(fileName))
+                {
+                    File.Create(fileName);
+                }
+
+                Files.Add(fileName);
+            }
+
+            
+        }
+
+        private void LoadListViews()
+        {
+            // for media listview
+            using (var reader = new StreamReader(Application.StartupPath + "\\Source.csv"))
             {
                 while (!reader.EndOfStream)
                 {
@@ -99,6 +144,32 @@ namespace PlayListEditor
                     AllMediaListView.Items.Add(new ListViewItem(values));
                 }
             }
+
+            // for local playlists
+            foreach (var item in LocalPLs)
+            {
+                LocalPLsLB.Items.Add(Path.GetFileName(item));
+            }
+        }
+
+        private void LoadLocalPLs()
+        {
+            foreach (var file in Directory.GetFiles(Settings.LocalPLFolder, "*.csv").OrderBy(x => x).ToList())
+            {
+                LocalPLs.Add(Path.GetFileNameWithoutExtension(file));
+            }
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            LoadMedia();
+            WriteToFiles();
+            LoadLocalPLs();
+            LoadListViews();
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

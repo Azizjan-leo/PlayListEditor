@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace PlayListEditor
 {
@@ -10,7 +11,6 @@ namespace PlayListEditor
     {
         public static string[] DefPLs = new[]
         {
-            "Source.csv",
             "Default.csv",
             "Mon.csv",
             "Tue.csv",
@@ -22,5 +22,9 @@ namespace PlayListEditor
         };
 
         public static string[] AllowedExtensions = new[] { ".mp4", ".png" };
+
+        public static string MediaFolder = String.Format(@"{0}\Media\", Application.StartupPath);
+        public static string LocalPLFolder = String.Format(@"{0}\LocalPlaylists\", Application.StartupPath);
+
     }
 }

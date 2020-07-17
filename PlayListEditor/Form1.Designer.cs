@@ -46,7 +46,7 @@
             this.AllMediaListView = new System.Windows.Forms.ListView();
             this.NameHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.LengthHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.listView1 = new System.Windows.Forms.ListView();
+            this.LocalPLsLB = new System.Windows.Forms.ListBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -182,6 +182,7 @@
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 13;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // AllMediaListView
             // 
@@ -206,14 +207,14 @@
             // 
             this.LengthHeader.Text = "Length";
             // 
-            // listView1
+            // LocalPLsLB
             // 
-            this.listView1.HideSelection = false;
-            this.listView1.Location = new System.Drawing.Point(233, 28);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(173, 216);
-            this.listView1.TabIndex = 18;
-            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.LocalPLsLB.FormattingEnabled = true;
+            this.LocalPLsLB.ItemHeight = 15;
+            this.LocalPLsLB.Location = new System.Drawing.Point(233, 33);
+            this.LocalPLsLB.Name = "LocalPLsLB";
+            this.LocalPLsLB.Size = new System.Drawing.Size(121, 214);
+            this.LocalPLsLB.TabIndex = 18;
             // 
             // Form1
             // 
@@ -221,7 +222,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(813, 306);
-            this.Controls.Add(this.listView1);
+            this.Controls.Add(this.LocalPLsLB);
             this.Controls.Add(this.AllMediaListView);
             this.Controls.Add(this.pictureBox4);
             this.Controls.Add(this.pictureBox3);
@@ -270,7 +271,7 @@
         private System.Windows.Forms.ListView AllMediaListView;
         private System.Windows.Forms.ColumnHeader NameHeader;
         private System.Windows.Forms.ColumnHeader LengthHeader;
-        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ListBox LocalPLsLB;
     }
 }
 

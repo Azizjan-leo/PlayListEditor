@@ -8,9 +8,9 @@ namespace PlayListEditor
 {
     public static class Exts
     {
-        public static string[] ToString(this MediaItem i)
+        public static string ToString(this MediaItem i)
         {
-            return new string[] { i.Name, i.Length.ToString(@"hh\:mm\:ss") };
+            return i.Name + "," + i.Length.ToString(@"hh\:mm\:ss");
         }
 
     }
