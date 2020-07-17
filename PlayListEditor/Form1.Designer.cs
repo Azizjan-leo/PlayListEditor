@@ -172,6 +172,7 @@
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox2.TabIndex = 14;
             this.pictureBox2.TabStop = false;
+            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
             // 
             // pictureBox1
             // 
@@ -216,6 +217,7 @@
             this.LocalPLsLB.Name = "LocalPLsLB";
             this.LocalPLsLB.Size = new System.Drawing.Size(121, 214);
             this.LocalPLsLB.TabIndex = 18;
+            this.LocalPLsLB.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LocalPLsLB_MouseDown);
             // 
             // Form1
             // 

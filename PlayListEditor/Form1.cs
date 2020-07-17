@@ -1,18 +1,13 @@
 ﻿using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
-using PlayListEditor.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using WMPLib;
-using Microsoft.VisualBasic;
 
 namespace PlayListEditor
 {
@@ -20,14 +15,14 @@ namespace PlayListEditor
     {
         readonly List<MediaItem> Media;
         readonly List<string> Files;
-        private List<string> LocalPLs;
         private ContextMenuStrip AllMediaLVContext;
+        private ContextMenuStrip ListboxContextMenu;
 
         public Form1()
         {
             Media = new List<MediaItem>();
             Files = new List<string>();
-            LocalPLs = new List<string>();
+           
             AllMediaLVContext = new ContextMenuStrip();
             var addTo = new ToolStripMenuItem();
             addTo.Text = "Add to";
@@ -38,6 +33,8 @@ namespace PlayListEditor
             contextMenu.MenuItems.Add(new MenuItem("Create playlist", CreatePL));
             InitializeComponent();
             LocalPLsLB.ContextMenu = contextMenu;
+
+            ListboxContextMenu = new ContextMenuStrip();
         }
 
         private void AddToPL(object sender, EventArgs e)
@@ -95,7 +92,14 @@ namespace PlayListEditor
 
             if(prompt.ShowDialog() == DialogResult.OK)
             {
-                LocalPLsLB.Items.Add(textBox.Text);
+                if(!Catalog.Lists.Select(x=>x.Name).ToList().Contains(textBox.Text))
+                {
+                    var fileName = Settings.LocalPLFolder + "\\" + textBox.Text + ".csv";
+                    File.Create(fileName);
+                    Catalog.Lists.Add(new PlayList(textBox.Text));
+                    LocalPLsLB.Items.Add(textBox.Text);
+                }
+                
             }
                 
 
@@ -179,6 +183,8 @@ namespace PlayListEditor
             LoadListViews();
         }
 
+   
+
         private void pictureBox1_Click(object sender, EventArgs e)
         {
 
@@ -194,6 +200,40 @@ namespace PlayListEditor
                     AllMediaLVContext.Show(Cursor.Position);
                 }
             }
+        }
+
+        private void LocalPLsLB_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                //select the item under the mouse pointer
+                LocalPLsLB.SelectedIndex = LocalPLsLB.IndexFromPoint(e.Location);
+                if (LocalPLsLB.SelectedIndex != -1)
+                {
+                    LocalPLsLB.ContextMenu.MenuItems.Add(new MenuItem("Delete", DeletePlayList));
+                }
+            }
+        }
+
+        private void DeletePlayList(object sender, EventArgs e)
+        {
+            var plName = LocalPLsLB.SelectedItem.ToString();
+            var file = Settings.LocalPLFolder + "\\" + plName + ".csv";
+            if (File.Exists(file))
+            {
+                File.Delete(file);
+                var pl = Catalog.Lists.Where(x => x.Name == plName).FirstOrDefault();
+                if (pl != null)
+                {
+                    Catalog.Lists.Remove(pl);
+                }
+                LocalPLsLB.Items.Remove(LocalPLsLB.SelectedItem);
+            }
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
