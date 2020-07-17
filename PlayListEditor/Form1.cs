@@ -16,39 +16,34 @@ using Microsoft.VisualBasic;
 
 namespace PlayListEditor
 {
-    public struct MediaItem
-    {
-        public string Name { get; set; }
-        public TimeSpan Length { get; set; }
-
-        public MediaItem(string name, TimeSpan length) : this()
-        {
-            Name = name;
-            Length = length;
-        }
-
-        public string ToCSVLine()
-        {
-            return Name + "," + Length.ToString(@"hh\:mm\:ss");
-        }
-
-    }
     public partial class Form1 : Form
     {
         readonly List<MediaItem> Media;
         readonly List<string> Files;
         private List<string> LocalPLs;
-        
+        private ContextMenuStrip AllMediaLVContext;
+
         public Form1()
         {
             Media = new List<MediaItem>();
             Files = new List<string>();
             LocalPLs = new List<string>();
+            AllMediaLVContext = new ContextMenuStrip();
+            var addTo = new ToolStripMenuItem();
+            addTo.Text = "Add to";
+            addTo.DropDownItems.Add("Mon", null, AddToPL);
+            AllMediaLVContext.Items.Add(addTo);
+            
             ContextMenu contextMenu = new ContextMenu();
             contextMenu.MenuItems.Add(new MenuItem("Create playlist", CreatePL));
-          
             InitializeComponent();
             LocalPLsLB.ContextMenu = contextMenu;
+        }
+
+        private void AddToPL(object sender, EventArgs e)
+        {
+            var text = (sender as ToolStripMenuItem).Text;
+
         }
 
         /// <summary>
@@ -131,7 +126,6 @@ namespace PlayListEditor
 
             
         }
-
         private void LoadListViews()
         {
             // for media listview
@@ -146,30 +140,60 @@ namespace PlayListEditor
             }
 
             // for local playlists
-            foreach (var item in LocalPLs)
+            foreach (var pl in Catalog.Lists)
             {
-                LocalPLsLB.Items.Add(Path.GetFileName(item));
+                LocalPLsLB.Items.Add(pl.Name);
             }
         }
+        private void LoadPLFromFile(string path)
+        {
+            if (!File.Exists(path))
+                return;
+            var pl = new PlayList(Path.GetFileNameWithoutExtension(path));
 
-        private void LoadLocalPLs()
+            using (var reader = new StreamReader(path))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    var values = line.Split(',');
+                    pl.Items.Add(new MediaItem(values[0], values[1]));
+                }
+            }
+
+            Catalog.Lists.Add(pl);
+        }
+        private void LoadCatalogFromCSVs()
         {
             foreach (var file in Directory.GetFiles(Settings.LocalPLFolder, "*.csv").OrderBy(x => x).ToList())
             {
-                LocalPLs.Add(Path.GetFileNameWithoutExtension(file));
+                LoadPLFromFile(file);
             }
         }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             LoadMedia();
             WriteToFiles();
-            LoadLocalPLs();
+            LoadCatalogFromCSVs();
             LoadListViews();
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void AllMediaListView_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+
+                if (AllMediaListView.FocusedItem != null && AllMediaListView.FocusedItem.Bounds.Contains(e.Location))
+                {
+                    AllMediaLVContext.Show(Cursor.Position);
+                }
+            }
         }
     }
 }

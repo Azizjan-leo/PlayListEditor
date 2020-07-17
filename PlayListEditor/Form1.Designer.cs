@@ -197,6 +197,7 @@
             this.AllMediaListView.TabIndex = 17;
             this.AllMediaListView.UseCompatibleStateImageBehavior = false;
             this.AllMediaListView.View = System.Windows.Forms.View.Details;
+            this.AllMediaListView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.AllMediaListView_MouseDown);
             // 
             // NameHeader
             // 
