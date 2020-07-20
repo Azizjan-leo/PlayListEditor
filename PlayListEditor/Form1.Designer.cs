@@ -34,23 +34,26 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.listBox3 = new System.Windows.Forms.ListBox();
+            this.PlaylistMediaLbl = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.listBox4 = new System.Windows.Forms.ListBox();
-            this.pictureBox4 = new System.Windows.Forms.PictureBox();
-            this.pictureBox3 = new System.Windows.Forms.PictureBox();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.deletePB = new System.Windows.Forms.PictureBox();
+            this.savePB = new System.Windows.Forms.PictureBox();
+            this.AddPlPB = new System.Windows.Forms.PictureBox();
+            this.updatePB = new System.Windows.Forms.PictureBox();
             this.AllMediaListView = new System.Windows.Forms.ListView();
             this.NameHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.LengthHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.LocalPLsLB = new System.Windows.Forms.ListBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.LocalPLsLV = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.PlaylistMediaLV = new System.Windows.Forms.ListView();
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            ((System.ComponentModel.ISupportInitialize)(this.deletePB)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.savePB)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AddPlPB)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.updatePB)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -98,28 +101,19 @@
             this.label5.TabIndex = 8;
             this.label5.Text = "0 min";
             // 
-            // label6
+            // PlaylistMediaLbl
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(413, 12);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(91, 15);
-            this.label6.TabIndex = 7;
-            this.label6.Text = "Playlist media";
-            // 
-            // listBox3
-            // 
-            this.listBox3.FormattingEnabled = true;
-            this.listBox3.ItemHeight = 15;
-            this.listBox3.Location = new System.Drawing.Point(412, 30);
-            this.listBox3.Name = "listBox3";
-            this.listBox3.Size = new System.Drawing.Size(107, 214);
-            this.listBox3.TabIndex = 6;
+            this.PlaylistMediaLbl.AutoSize = true;
+            this.PlaylistMediaLbl.Location = new System.Drawing.Point(413, 12);
+            this.PlaylistMediaLbl.Name = "PlaylistMediaLbl";
+            this.PlaylistMediaLbl.Size = new System.Drawing.Size(91, 15);
+            this.PlaylistMediaLbl.TabIndex = 7;
+            this.PlaylistMediaLbl.Text = "Playlist media";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(605, 252);
+            this.label7.Location = new System.Drawing.Point(632, 250);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(38, 15);
             this.label7.TabIndex = 11;
@@ -138,55 +132,64 @@
             // 
             this.listBox4.FormattingEnabled = true;
             this.listBox4.ItemHeight = 15;
-            this.listBox4.Location = new System.Drawing.Point(608, 30);
+            this.listBox4.Location = new System.Drawing.Point(635, 30);
             this.listBox4.Name = "listBox4";
             this.listBox4.Size = new System.Drawing.Size(107, 214);
             this.listBox4.TabIndex = 9;
             // 
-            // pictureBox4
+            // deletePB
             // 
-            this.pictureBox4.Image = global::PlayListEditor.Properties.Resources.button_cancel;
-            this.pictureBox4.Location = new System.Drawing.Point(748, 203);
-            this.pictureBox4.Name = "pictureBox4";
-            this.pictureBox4.Size = new System.Drawing.Size(36, 38);
-            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox4.TabIndex = 16;
-            this.pictureBox4.TabStop = false;
+            this.deletePB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.deletePB.Image = global::PlayListEditor.Properties.Resources.button_cancel;
+            this.deletePB.Location = new System.Drawing.Point(748, 162);
+            this.deletePB.Name = "deletePB";
+            this.deletePB.Size = new System.Drawing.Size(36, 38);
+            this.deletePB.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.deletePB.TabIndex = 16;
+            this.deletePB.TabStop = false;
+            this.deletePB.Visible = false;
+            this.deletePB.Click += new System.EventHandler(this.DeletePB_Click);
             // 
-            // pictureBox3
+            // savePB
             // 
-            this.pictureBox3.Image = global::PlayListEditor.Properties.Resources.save;
-            this.pictureBox3.Location = new System.Drawing.Point(748, 144);
-            this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(36, 38);
-            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox3.TabIndex = 15;
-            this.pictureBox3.TabStop = false;
+            this.savePB.Image = global::PlayListEditor.Properties.Resources.save;
+            this.savePB.Location = new System.Drawing.Point(748, 118);
+            this.savePB.Name = "savePB";
+            this.savePB.Size = new System.Drawing.Size(36, 38);
+            this.savePB.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.savePB.TabIndex = 15;
+            this.savePB.TabStop = false;
+            this.savePB.Visible = false;
+            this.savePB.Click += new System.EventHandler(this.SavePB_Click);
             // 
-            // pictureBox2
+            // AddPlPB
             // 
-            this.pictureBox2.Image = global::PlayListEditor.Properties.Resources.plus;
-            this.pictureBox2.Location = new System.Drawing.Point(748, 84);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(36, 38);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox2.TabIndex = 14;
-            this.pictureBox2.TabStop = false;
-            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
+            this.AddPlPB.Image = global::PlayListEditor.Properties.Resources.plus;
+            this.AddPlPB.Location = new System.Drawing.Point(748, 30);
+            this.AddPlPB.Name = "AddPlPB";
+            this.AddPlPB.Size = new System.Drawing.Size(36, 38);
+            this.AddPlPB.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.AddPlPB.TabIndex = 14;
+            this.AddPlPB.TabStop = false;
+            this.AddPlPB.Click += new System.EventHandler(this.CreatePL);
             // 
-            // pictureBox1
+            // updatePB
             // 
-            this.pictureBox1.Image = global::PlayListEditor.Properties.Resources._0pvBq;
-            this.pictureBox1.Location = new System.Drawing.Point(748, 30);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(36, 38);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 13;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.updatePB.Image = global::PlayListEditor.Properties.Resources._0pvBq;
+            this.updatePB.Location = new System.Drawing.Point(748, 74);
+            this.updatePB.Name = "updatePB";
+            this.updatePB.Size = new System.Drawing.Size(36, 38);
+            this.updatePB.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.updatePB.TabIndex = 13;
+            this.updatePB.TabStop = false;
+            this.updatePB.Click += new System.EventHandler(this.UpdatePB_Click);
             // 
             // AllMediaListView
             // 
+            this.AllMediaListView.AllowDrop = true;
+            this.AllMediaListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.AllMediaListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.NameHeader,
             this.LengthHeader});
@@ -198,6 +201,7 @@
             this.AllMediaListView.TabIndex = 17;
             this.AllMediaListView.UseCompatibleStateImageBehavior = false;
             this.AllMediaListView.View = System.Windows.Forms.View.Details;
+            this.AllMediaListView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.AllMediaListView_ItemDrag);
             this.AllMediaListView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.AllMediaListView_MouseDown);
             // 
             // NameHeader
@@ -209,15 +213,55 @@
             // 
             this.LengthHeader.Text = "Length";
             // 
-            // LocalPLsLB
+            // LocalPLsLV
             // 
-            this.LocalPLsLB.FormattingEnabled = true;
-            this.LocalPLsLB.ItemHeight = 15;
-            this.LocalPLsLB.Location = new System.Drawing.Point(233, 33);
-            this.LocalPLsLB.Name = "LocalPLsLB";
-            this.LocalPLsLB.Size = new System.Drawing.Size(121, 214);
-            this.LocalPLsLB.TabIndex = 18;
-            this.LocalPLsLB.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LocalPLsLB_MouseDown);
+            this.LocalPLsLV.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.LocalPLsLV.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1});
+            this.LocalPLsLV.HideSelection = false;
+            this.LocalPLsLV.Location = new System.Drawing.Point(233, 28);
+            this.LocalPLsLV.MultiSelect = false;
+            this.LocalPLsLV.Name = "LocalPLsLV";
+            this.LocalPLsLV.Size = new System.Drawing.Size(173, 216);
+            this.LocalPLsLV.TabIndex = 18;
+            this.LocalPLsLV.UseCompatibleStateImageBehavior = false;
+            this.LocalPLsLV.View = System.Windows.Forms.View.Details;
+            this.LocalPLsLV.MouseUp += new System.Windows.Forms.MouseEventHandler(this.LocalPLsLV_MouseUp);
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Name";
+            this.columnHeader1.Width = 168;
+            // 
+            // PlaylistMediaLV
+            // 
+            this.PlaylistMediaLV.AllowDrop = true;
+            this.PlaylistMediaLV.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.PlaylistMediaLV.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader2,
+            this.columnHeader3});
+            this.PlaylistMediaLV.GridLines = true;
+            this.PlaylistMediaLV.HideSelection = false;
+            this.PlaylistMediaLV.Location = new System.Drawing.Point(416, 30);
+            this.PlaylistMediaLV.Name = "PlaylistMediaLV";
+            this.PlaylistMediaLV.Size = new System.Drawing.Size(215, 216);
+            this.PlaylistMediaLV.TabIndex = 19;
+            this.PlaylistMediaLV.UseCompatibleStateImageBehavior = false;
+            this.PlaylistMediaLV.View = System.Windows.Forms.View.Details;
+            this.PlaylistMediaLV.DragEnter += new System.Windows.Forms.DragEventHandler(this.PlaylistMediaLV_DragEnter);
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "Name";
+            this.columnHeader2.Width = 150;
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "Length";
             // 
             // Form1
             // 
@@ -225,18 +269,18 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(813, 306);
-            this.Controls.Add(this.LocalPLsLB);
+            this.Controls.Add(this.PlaylistMediaLV);
+            this.Controls.Add(this.LocalPLsLV);
             this.Controls.Add(this.AllMediaListView);
-            this.Controls.Add(this.pictureBox4);
-            this.Controls.Add(this.pictureBox3);
-            this.Controls.Add(this.pictureBox2);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.deletePB);
+            this.Controls.Add(this.savePB);
+            this.Controls.Add(this.AddPlPB);
+            this.Controls.Add(this.updatePB);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.listBox4);
             this.Controls.Add(this.label5);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.listBox3);
+            this.Controls.Add(this.PlaylistMediaLbl);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label2);
@@ -247,10 +291,10 @@
             this.Name = "Form1";
             this.Text = "Playlists Editor";
             this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.deletePB)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.savePB)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AddPlPB)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.updatePB)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -262,19 +306,22 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.ListBox listBox3;
+        private System.Windows.Forms.Label PlaylistMediaLbl;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.ListBox listBox4;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.PictureBox pictureBox2;
-        private System.Windows.Forms.PictureBox pictureBox3;
-        private System.Windows.Forms.PictureBox pictureBox4;
+        private System.Windows.Forms.PictureBox updatePB;
+        private System.Windows.Forms.PictureBox AddPlPB;
+        private System.Windows.Forms.PictureBox savePB;
+        private System.Windows.Forms.PictureBox deletePB;
         private System.Windows.Forms.ListView AllMediaListView;
         private System.Windows.Forms.ColumnHeader NameHeader;
         private System.Windows.Forms.ColumnHeader LengthHeader;
-        private System.Windows.Forms.ListBox LocalPLsLB;
+        private System.Windows.Forms.ListView LocalPLsLV;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ListView PlaylistMediaLV;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ColumnHeader columnHeader3;
     }
 }
 
