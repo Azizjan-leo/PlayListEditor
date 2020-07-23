@@ -31,6 +31,18 @@ namespace PlayListEditor
     {
         public string Name { get; set; }
         public List<MediaItem> Items { get; set; }
+        public TimeSpan Duration 
+        {
+            get
+            {
+                TimeSpan tmp = default;
+                foreach (var item in Items)
+                {
+                    tmp += TimeSpan.Parse(item.Length);
+                }
+                return tmp;
+            } 
+        }
         public PlayList(string name)
         {
             Name = name;
@@ -39,6 +51,17 @@ namespace PlayListEditor
     }
     public static class Catalog
     {
+        public static TimeSpan Duration { 
+            get
+            {
+                TimeSpan tmp = default;
+                foreach (var list in Lists)
+                {
+                    tmp += list.Duration;
+                }
+                return tmp;
+            }
+        }
         public static List<PlayList> Lists = new List<PlayList>();
     }
 }

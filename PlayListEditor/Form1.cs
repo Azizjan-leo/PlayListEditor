@@ -15,6 +15,9 @@ namespace PlayListEditor
         readonly List<MediaItem> Media;
         readonly List<string> Files;
         ContextMenuStrip AllMediaLVContext;
+        ListViewItem PrevSelectedLocalPL;
+        bool isSelected = false;
+
         public bool IsToSave 
         {
             get
@@ -56,7 +59,7 @@ namespace PlayListEditor
              .GetFiles(Settings.MediaFolder)
              .Where(file => Settings.AllowedExtensions.Any(file.ToLower().EndsWith))
              .ToList();
-
+            TimeSpan totalDuration = default;
             foreach (var file in files)
             {
                 var duration = TimeSpan.FromSeconds(15);
@@ -73,7 +76,10 @@ namespace PlayListEditor
                     Path.GetFileNameWithoutExtension(file), 
                     duration
                     ));
+                totalDuration += duration;
             }
+            AllMediaDurationLbl.Text = $"{(int)totalDuration.TotalHours}:{(int)totalDuration.Minutes}:{totalDuration.Seconds:00}";
+
         }
         private void CreatePL(object sender, EventArgs e) 
         {
@@ -164,10 +170,10 @@ namespace PlayListEditor
             }
 
             // for local playlists
-            foreach (var pl in Catalog.Lists)
-            {
-                LocalPLsLV.Items.Add(pl.Name);
-            }
+            LocalPLsLV.Items.AddRange(Catalog.Lists.Select(l => new ListViewItem { Text = l.Name }).ToArray());
+          
+            LocalPLDurationLbl.Text = $"{(int)Catalog.Duration.TotalHours}:{(int)Catalog.Duration.Minutes}:{Catalog.Duration.Seconds:00}";
+
         }
 
         private void LoadPLFromFile(string path)
@@ -175,7 +181,7 @@ namespace PlayListEditor
             if (!File.Exists(path))
                 return;
             var pl = new PlayList(Path.GetFileNameWithoutExtension(path));
-
+            
             using (var reader = new StreamReader(path))
             {
                 while (!reader.EndOfStream)
@@ -240,49 +246,27 @@ namespace PlayListEditor
             foreach (ListViewItem item in LocalPLsLV.SelectedItems)
             {
                 // it is not one of the default playlist so we can delete the file permanently
+                var pl = Catalog.Lists.FirstOrDefault(l => l.Name == item.Text);
+
                 if (!Settings.DefPLs.Contains(item.Text + ".csv"))
-                {
-                    var path = Settings.LocalPLFolder + item.Text + ".csv";
-                    if (File.Exists(path))
-                    {
-                        GC.Collect();
-                        GC.WaitForPendingFinalizers();
-                        File.Delete(path);
-                    }
+                {                
                     LocalPLsLV.Items.Remove(item);
-                    PlaylistMediaLbl.Text = "Playlist media";
+                    Catalog.Lists.Remove(pl);
                 }
-            }
-            PlaylistMediaLV.Items.Clear();
-            deletePB.Visible = false;
-        }
-
-        private void LocalPLsLV_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (LocalPLsLV.SelectedItems.Count != 0)
-            {
-                PlaylistMediaLV.Items.Clear();
-                deletePB.Visible = true;
-                PlaylistMediaLbl.Text = LocalPLsLV.SelectedItems[0].Text;
-                foreach (var pl in Catalog.Lists)
+                else // one of the default lists
                 {
-                    if(pl.Name == LocalPLsLV.SelectedItems[0].Text)
-                    {
-                        foreach (var media in pl.Items)
-                        {
-                            var li = new ListViewItem(new string[]{ media.Name,media.Length });
-                            PlaylistMediaLV.Items.Add(li);
-                        }
-                    }
+                    pl.Items.Clear();
                 }
             }
-            else
-            {
-                PlaylistMediaLbl.Text = "Playlist media";
-                PlaylistMediaLV.Items.Clear();
-            }
+            PlaylistMediaLbl.Text = "Playlist media";
+            PlaylistMediaLV.Items.Clear();
+            PlaylistMediaDurationLbl.Text = string.Empty;
+            LocalPLDurationLbl.Text = $"{(int)Catalog.Duration.TotalHours}:{(int)Catalog.Duration.Minutes}:{Catalog.Duration.Seconds:00}";
+            deletePB.Visible = false;
+            IsToSave = true;
         }
 
+ 
         private void PlaylistMediaLV_DragEnter(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Copy;
@@ -299,13 +283,18 @@ namespace PlayListEditor
                 PlaylistMediaLV.Items.Add(new ListViewItem(vb));
                               
                 IsToSave = true;
-
             }
+            TimeSpan totalDuration = default;
+            foreach (ListViewItem item in PlaylistMediaLV.Items)
+            {
+                totalDuration += TimeSpan.Parse(item.SubItems[1].Text);
+            }
+            PlaylistMediaDurationLbl.Text = $"{(int)totalDuration.TotalHours}:{(int)totalDuration.Minutes}:{totalDuration.Seconds:00}";
         }
 
         private void SavePB_Click(object sender, EventArgs e)
         {
-            if(PlaylistMediaLbl.Text == "Playlist media")
+            if(PlaylistMediaLbl.Text == "Playlist media" && PlaylistMediaLV.Items.Count != 0)
             {
                 Form prompt = new Form()
                 {
@@ -349,6 +338,31 @@ namespace PlayListEditor
                     }
                 }
             }
+            // there are some pls to delete
+            else if(PlaylistMediaLbl.Text == "Playlist media" && PlaylistMediaLV.Items.Count == 0)
+            {
+                foreach (var file in Directory.GetFiles(Settings.LocalPLFolder, "*.csv"))
+                {
+                    if(!Catalog.Lists.Select(l => l.Name).Contains(Path.GetFileNameWithoutExtension(file)))
+                    {
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                        File.Delete(file);
+                    }
+                    else
+                    {
+                        var pl = Catalog.Lists.Where(l => l.Name == Path.GetFileNameWithoutExtension(file)).FirstOrDefault();
+                        File.WriteAllText(file, string.Empty);
+
+                        var sb = new StringBuilder();
+                        foreach (var item in pl.Items)
+                        {
+                            sb.AppendLine(item.ToCSVLine());
+                        }
+                        File.WriteAllText(file, sb.ToString());
+                    }
+                }
+            }
             else // it is an old playlist
             {
                 var pl = Catalog.Lists.Where(l => l.Name == PlaylistMediaLbl.Text).First();
@@ -360,6 +374,32 @@ namespace PlayListEditor
                 }
                 WriteToFiles();
             }
+            IsToSave = false;
+        }
+
+      
+
+        private void LocalPLsLV_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            ListViewItem item = (ListViewItem)e.Item;
+            var pl = Catalog.Lists.Where(l => l.Name == item.Text).First();
+
+            PlaylistMediaLV.DoDragDrop(item, DragDropEffects.Copy); // just for copying effect
+
+            PlaylistMediaLV.Items.AddRange(pl.Items.Select(l => new ListViewItem(new string[] { l.Name, l.Length })).ToArray()); ;
+            
+            IsToSave = true;
+            TimeSpan totalDuration = default;
+            foreach (ListViewItem i in PlaylistMediaLV.Items)
+            {
+                totalDuration += TimeSpan.Parse(i.SubItems[1].Text);
+            }
+            PlaylistMediaDurationLbl.Text = $"{(int)totalDuration.TotalHours}:{(int)totalDuration.Minutes}:{totalDuration.Seconds:00}";
+
+            LocalPLsLV.Items[PrevSelectedLocalPL.Index].Selected = true;
+           // LocalPLsLV.MouseUp -= LocalPLsLV_MouseUp;
+           //// LocalPLsLV.SelectedItems[0] = PrevSelectedLocalPL;
+           // LocalPLsLV.MouseUp += LocalPLsLV_MouseUp;
         }
 
         private void UpdatePB_Click(object sender, EventArgs e)
@@ -370,6 +410,72 @@ namespace PlayListEditor
             PlaylistMediaLV.Items.Clear();
             deletePB.Visible = false;
             IsToSave = false;
+        }
+
+        private void LocalPLsLV_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+
+            //if (isSelected)
+            //{
+            //    LocalPLsLV.Items[PrevSelectedLocalPL.Index].Selected = true;
+            //    LocalPLsLV.Items[PrevSelectedLocalPL.Index].Focused = true;
+            //    e.Item.Selected = false;
+            //}
+            //{
+            //    FirstChange = false;
+            //}
+            //if(PrevSelectedLocalPL != null && PrevSelectedLocalPL.Index != -1 && PrevSelectedLocalPL.Index != e.ItemIndex)
+            //{
+            //    LocalPLsLV.Items[PrevSelectedLocalPL.Index].Selected = true;
+            //    LocalPLsLV.Items[PrevSelectedLocalPL.Index].Focused = true;
+            //}
+
+        }
+
+        private void LocalPLsLV_DoubleClick(object sender, EventArgs e)
+        {
+            var item = LocalPLsLV.FocusedItem;
+            if (item != null)
+            {
+                isSelected = true;
+                PrevSelectedLocalPL = item;
+               // LocalPLsLV.Items[item.Index].Selected = true;
+
+                PlaylistMediaLV.Items.Clear();
+                deletePB.Visible = true;
+                PlaylistMediaLbl.Text = item.Text;
+                var pl = Catalog.Lists.Where(l => l.Name == item.Text).First();
+
+                foreach (var media in pl.Items)
+                {
+                    var li = new ListViewItem(new string[] { media.Name, media.Length });
+                    PlaylistMediaLV.Items.Add(li);
+                }
+
+                PlaylistMediaDurationLbl.Text = $"{(int)pl.Duration.TotalHours}:{(int)pl.Duration.Minutes}:{pl.Duration.Seconds:00}";
+
+            }
+            //else
+            //{
+            //    PlaylistMediaLbl.Text = "Playlist media";
+            //    PlaylistMediaLV.Items.Clear();
+            //    PlaylistMediaDurationLbl.Text = string.Empty;
+            //}
+        }
+
+        private void LocalPLsLV_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (isSelected)
+            {
+                LocalPLsLV.Items[PrevSelectedLocalPL.Index].Selected = true;
+                LocalPLsLV.Items[PrevSelectedLocalPL.Index].Focused = true;
+            }
+            else
+            {
+                var item = LocalPLsLV.GetItemAt(e.X, e.Y);
+                PrevSelectedLocalPL = item;
+            }
+          
         }
     }
 }
