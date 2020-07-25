@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PlayListEditor
@@ -12,13 +8,13 @@ namespace PlayListEditor
         public static string[] DefPLs = new[]
         {
             "Default.csv",
+            "Sun.csv",
             "Mon.csv",
             "Tue.csv",
             "Wed.csv",
             "Thu.csv",
             "Fri.csv",
-            "Sat.csv",
-            "Sun.csv",
+            "Sat.csv"
         };
 
         public static string[] AllowedExtensions = new[] { ".mp4", ".png" };

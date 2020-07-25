@@ -111,9 +111,5 @@ namespace PlayListEditor
             }
         }
 
-        //public static PlayList GetSource()
-        //{
-            
-        //}
     }
 }
