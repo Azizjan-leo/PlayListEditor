@@ -1,20 +1,26 @@
-﻿using System;
+﻿using Microsoft.WindowsAPICodePack.Shell;
+using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
 
 namespace PlayListEditor
 {
-    public struct MediaItem
+    public class MediaItem
     {
         public string Name { get; set; }
         public string Length { get; set; }
 
-        public MediaItem(string name, TimeSpan length) : this()
+        public MediaItem(string name, TimeSpan length)
         {
             Name = name;
             Length = length.ToString(@"hh\:mm\:ss");
         }
 
-        public MediaItem(string name, string length) : this()
+        public MediaItem(string name, string length)
         {
             Name = name;
             Length = length;
@@ -63,5 +69,51 @@ namespace PlayListEditor
             }
         }
         public static List<PlayList> Lists = new List<PlayList>();
+        private static PlayList source = new PlayList("Source");
+
+        public static PlayList Source 
+        {
+            get { return source; }
+            set
+            {
+                source.Items.Clear();
+                var files = Directory
+                 .GetFiles(Settings.MediaFolder)
+                 .Where(file => Settings.AllowedExtensions.Any(file.ToLower().EndsWith))
+                 .ToList();
+                TimeSpan totalDuration = default;
+                foreach (var file in files)
+                {
+                    var duration = TimeSpan.FromSeconds(15);
+                    if (Path.GetExtension(file) == ".mp4")
+                    {
+                        using (var shell = ShellObject.FromParsingName(file))
+                        {
+                            IShellProperty prop = shell.Properties.System.Media.Duration;
+                            var t = (ulong)prop.ValueAsObject;
+                            duration = TimeSpan.FromTicks((long)t);
+                        }
+                    }
+                   source.Items.Add(new MediaItem(
+                   Path.GetFileNameWithoutExtension(file),
+                   duration
+                   ));
+                    totalDuration += duration;
+                }
+                // Write to Source.csv
+                var sourceFile = Application.StartupPath + "\\Source.csv";
+                var sb = new StringBuilder();
+                foreach (var item in source.Items)
+                {
+                    sb.AppendLine(item.ToCSVLine());
+                }
+                File.WriteAllText(sourceFile, sb.ToString());
+            }
+        }
+
+        //public static PlayList GetSource()
+        //{
+            
+        //}
     }
 }
