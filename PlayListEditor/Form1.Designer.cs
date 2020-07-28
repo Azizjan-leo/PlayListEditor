@@ -196,9 +196,11 @@
             this.LocalPLsLV.UseCompatibleStateImageBehavior = false;
             this.LocalPLsLV.View = System.Windows.Forms.View.Details;
             this.LocalPLsLV.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.LocalPLsLV_ItemDrag);
+            this.LocalPLsLV.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.LocalPLsLV_ItemSelectionChanged);
             this.LocalPLsLV.DragEnter += new System.Windows.Forms.DragEventHandler(this.PlaylistMediaLV_DragEnter);
             this.LocalPLsLV.MouseClick += new System.Windows.Forms.MouseEventHandler(this.LocalPLsLV_MouseClick);
-            this.LocalPLsLV.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.LocalPLsLV_MouseDoubleClick);
+            this.LocalPLsLV.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LocalPLsLV_MouseDown);
+            this.LocalPLsLV.MouseUp += new System.Windows.Forms.MouseEventHandler(this.LocalPLsLV_MouseUp);
             // 
             // columnHeader1
             // 
@@ -257,6 +259,7 @@
             this.Font = new System.Drawing.Font("News706 BT", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
+            this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Playlists Editor";
             this.Load += new System.EventHandler(this.Form1_Load);

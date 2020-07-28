@@ -57,6 +57,9 @@ namespace PlayListEditor
     }
     public static class Catalog
     {
+        public static List<PlayList> Lists = new List<PlayList>();
+        private static readonly PlayList _source = new PlayList("Source");
+
         public static TimeSpan Duration { 
             get
             {
@@ -68,15 +71,13 @@ namespace PlayListEditor
                 return tmp;
             }
         }
-        public static List<PlayList> Lists = new List<PlayList>();
-        private static PlayList source = new PlayList("Source");
-
+      
         public static PlayList Source 
         {
-            get { return source; }
+            get { return _source; }
             set
             {
-                source.Items.Clear();
+                _source.Items.Clear();
                 var files = Directory
                  .GetFiles(Settings.MediaFolder)
                  .Where(file => Settings.AllowedExtensions.Any(file.ToLower().EndsWith))
@@ -94,8 +95,8 @@ namespace PlayListEditor
                             duration = TimeSpan.FromTicks((long)t);
                         }
                     }
-                   source.Items.Add(new MediaItem(
-                   Path.GetFileNameWithoutExtension(file),
+                   _source.Items.Add(new MediaItem(
+                   Path.GetFileName(file),
                    duration
                    ));
                     totalDuration += duration;
@@ -103,7 +104,7 @@ namespace PlayListEditor
                 // Write to Source.csv
                 var sourceFile = Application.StartupPath + "\\Source.csv";
                 var sb = new StringBuilder();
-                foreach (var item in source.Items)
+                foreach (var item in _source.Items)
                 {
                     sb.AppendLine(item.ToCSVLine());
                 }

@@ -1,11 +1,36 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 
 namespace PlayListEditor
 {
     public static class Settings
     {
-        public static string[] DefPLs = new[]
+        public static string[] DefPLs() 
+        {
+            if (!Directory.Exists(remotePLFolder))
+            {
+                Directory.CreateDirectory(remotePLFolder);
+            }
+            if (!Directory.Exists(mediaFolder))
+            {
+                Directory.CreateDirectory(mediaFolder);
+            }
+            // Checking if all default files are there
+            foreach (var item in defPLs)
+            {
+                string fileName = LocalPLFolder + item;
+
+                if (!File.Exists(fileName))
+                {
+                    var fs = File.Create(fileName);
+                    fs.Close();
+                }
+            }
+            return defPLs;
+        }
+
+        private static readonly string[] defPLs = new[]
         {
             "Default.csv",
             "Sun.csv",
@@ -17,10 +42,35 @@ namespace PlayListEditor
             "Sat.csv"
         };
 
-        public static string[] AllowedExtensions = new[] { ".mp4", ".png" };
+        public static readonly string[] AllowedExtensions = new[] { ".mp4", ".png" };
 
-        public static string MediaFolder = String.Format(@"{0}\Media\", Application.StartupPath);
-        public static string LocalPLFolder = String.Format(@"{0}\LocalPlaylists\", Application.StartupPath);
+        public static string MediaFolder
+        {
+            get
+            {
+                if (!Directory.Exists(mediaFolder))
+                {
+                    Directory.CreateDirectory(mediaFolder);
+                }
+                return mediaFolder;
+            } 
+        }
+        public static string LocalPLFolder 
+        {
+            get
+            {
+                if (!Directory.Exists(localPLFolder))
+                {
+                    Directory.CreateDirectory(localPLFolder);
+                }
+                return localPLFolder;
+            }    
+        }
+
+        
+        private static readonly string remotePLFolder = String.Format(@"{0}\RemotePlaylists\", Application.StartupPath);
+        private static readonly string mediaFolder = String.Format(@"{0}\Media\", Application.StartupPath);
+        private static readonly string localPLFolder = String.Format(@"{0}\LocalPlaylists\", Application.StartupPath);
 
     }
 }

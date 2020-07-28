@@ -10,12 +10,13 @@ namespace PlayListEditor
 {
     public partial class Form1 : Form
     {
-        readonly List<string> Files;
         ContextMenuStrip AllMediaLVContext;
         ListViewItem PrevSelectedLocalPL;
         ListView activeListView;
-        ToolStripMenuItem ForAllMediaContext = new ToolStripMenuItem() { Text = "Add to" };
-   
+        ToolStripMenuItem ForAllMediaContext;
+        private bool LPLLastActionDrag;
+        private bool mouseDown;
+
         public bool IsToSave 
         {
             get
@@ -29,16 +30,11 @@ namespace PlayListEditor
         }
         public Form1()
         {
-           // Media = new List<MediaItem>();
-            Files = new List<string>();
-           
             AllMediaLVContext = new ContextMenuStrip();
-           
-
+            ForAllMediaContext = new ToolStripMenuItem() { Text = "Add to" };
             activeListView = new ListView();
-
+            Settings.DefPLs();
             InitializeComponent();
-
         }
 
         private void AddToPL(object sender, EventArgs e)
@@ -86,6 +82,7 @@ namespace PlayListEditor
             }
             UpdateAllMediaLVContext();
         }
+
         private void UpdateAllMediaLVContext()
         {
             ForAllMediaContext.DropDownItems.Clear();
@@ -96,62 +93,74 @@ namespace PlayListEditor
             }
                 
         }
+
         private void CreatePL(object sender, EventArgs e) 
         {
             Form prompt = new Form()
             {
-                Width = 500,
-                Height = 150,
+                Width = 380,
+                Height = 100,
                 FormBorderStyle = FormBorderStyle.FixedDialog,
-                Text = "Create new playlist",
-                StartPosition = FormStartPosition.CenterScreen
+                Text = "Create a new playlist",
+                StartPosition = FormStartPosition.CenterScreen,
+                MaximizeBox = false,
+                MinimizeBox = false
             };
-            Label textLabel = new Label() { Left = 50, Top = 20, Text = "Playlist" };
-            TextBox textBox = new TextBox() { Left = 50, Top = 50, Width = 400 };
-            Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 70, DialogResult = DialogResult.OK };
-            confirmation.Click += (s, a) => { prompt.Close(); };
+            Label textLabel = new Label() { Left = 20, Top = 23, Text = "Name:" };
+            TextBox textBox = new TextBox() { Left = 55, Top = 20, Width = 190, MaxLength = 15 };
+
+            Button confirmation = new Button() { Text = "Ok", Left = 255, Width = 80, Top = 19, DialogResult = DialogResult.OK };
+
+            confirmation.Click += (s, a) => 
+            {
+                if (string.IsNullOrEmpty(textBox.Text))
+                {
+                    MessageBox.Show("Name is required!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    prompt.DialogResult = DialogResult.Retry;
+                }
+                else
+                {
+                    if (!Catalog.Lists.Select(x => x.Name).Contains(textBox.Text))
+                    {
+                        var fileName = Settings.LocalPLFolder + "\\" + textBox.Text + ".csv";
+                        var fs = File.Create(fileName);
+                        fs.Close();
+                        Catalog.Lists.Add(new PlayList(textBox.Text));
+                        ListViewItem newItem = new ListViewItem(textBox.Text);
+                        LocalPLsLV.Items.Add(newItem);
+                        newItem.Selected = true;
+                        newItem.Focused = true;
+                        PlaylistMediaLbl.Text = textBox.Text;
+                        prompt.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show(textBox.Text + " playlist already exists", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        prompt.DialogResult = DialogResult.Retry;
+                    }
+                    
+                }
+            };
             prompt.Controls.Add(textBox);
             prompt.Controls.Add(confirmation);
             prompt.Controls.Add(textLabel);
             prompt.AcceptButton = confirmation;
-
-            if(prompt.ShowDialog() == DialogResult.OK)
+            var res = DialogResult.Retry;
+            do
             {
-                if(!Catalog.Lists.Select(x=>x.Name).Contains(textBox.Text))
-                {
-                    var fileName = Settings.LocalPLFolder + "\\" + textBox.Text + ".csv";
-                    var fs = File.Create(fileName);
-                    fs.Close();
-                    Catalog.Lists.Add(new PlayList(textBox.Text));
-                    LocalPLsLV.Items.Add(textBox.Text);
-                }
-                else
-                {
-                    MessageBox.Show(textBox.Text + " playlist already exists", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                }
+                res = prompt.ShowDialog();
+            } while (res == DialogResult.Retry);
+                
+            if (res == DialogResult.OK)
+            {
                 UpdateAllMediaLVContext();
             }
         }
 
-        private void CheckDefFiles()
-        {
-            // Checking if all default files are there
-            foreach (var item in Settings.DefPLs)
-            {
-                string fileName = Settings.LocalPLFolder + item;
-
-                if (!File.Exists(fileName))
-                {
-                    var fs = File.Create(fileName);
-                    fs.Close();
-                }
-
-                Files.Add(fileName);
-            }
-        }
-
+       
         private void WriteToFiles()
         {
+            Settings.DefPLs();
             //Write all playlists
             foreach (var pl in Catalog.Lists)
             {
@@ -167,6 +176,7 @@ namespace PlayListEditor
                 }
             }
         }
+
         private void LoadListViews()
         {
             // for media listview
@@ -216,6 +226,7 @@ namespace PlayListEditor
 
         private void LoadCatalogFromCSVs()
         {
+            Settings.DefPLs();
             Catalog.Lists.Clear();
             foreach (var file in Directory.GetFiles(Settings.LocalPLFolder, "*.csv").OrderBy(x => x).ToList())
             {
@@ -225,13 +236,11 @@ namespace PlayListEditor
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            CheckDefFiles();
             LoadCatalogFromCSVs();
             LoadMedia();
             LoadListViews();
         }
 
-   
         private void AllMediaListView_MouseDown(object sender, MouseEventArgs e)
         {
             
@@ -243,7 +252,6 @@ namespace PlayListEditor
                 }
             }
         }
-
 
         private void DeletePlayList(object sender, EventArgs e)
         {
@@ -269,7 +277,7 @@ namespace PlayListEditor
                 // it is not one of the default playlist so we can delete the file permanently
                 var pl = Catalog.Lists.FirstOrDefault(l => l.Name == item.Text);
 
-                if (!Settings.DefPLs.Contains(item.Text + ".csv"))
+                if (!Settings.DefPLs().Contains(item.Text + ".csv"))
                 {
                     LocalPLsLV.Items.Remove(item);
                     Catalog.Lists.Remove(pl);
@@ -299,7 +307,6 @@ namespace PlayListEditor
             IsToSave = true;
         }
 
- 
         private void PlaylistMediaLV_DragEnter(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Copy;
@@ -333,46 +340,66 @@ namespace PlayListEditor
 
         private void SavePB_Click(object sender, EventArgs e)
         {
+            Settings.DefPLs();
             if (PlaylistMediaLbl.Text == "Playlist media" && PlaylistMediaLV.Items.Count != 0)
             {
                 Form prompt = new Form()
                 {
-                    Width = 500,
-                    Height = 150,
+                    Width = 380,
+                    Height = 100,
                     FormBorderStyle = FormBorderStyle.FixedDialog,
-                    Text = "Create new playlist",
-                    StartPosition = FormStartPosition.CenterScreen
+                    Text = "Create a new playlist",
+                    StartPosition = FormStartPosition.CenterScreen,
+                    MaximizeBox = false,
+                    MinimizeBox = false
                 };
-                Label textLabel = new Label() { Left = 50, Top = 20, Text = "Playlist" };
-                TextBox textBox = new TextBox() { Left = 50, Top = 50, Width = 400 };
-                Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 70, DialogResult = DialogResult.OK };
-                confirmation.Click += (s, a) => { prompt.Close(); };
+                Label textLabel = new Label() { Left = 20, Top = 23, Text = "Name:" };
+                TextBox textBox = new TextBox() { Left = 55, Top = 20, Width = 190, MaxLength = 15 };
+
+                Button confirmation = new Button() { Text = "Ok", Left = 255, Width = 80, Top = 19, DialogResult = DialogResult.OK };
+                confirmation.Click += (s, a) =>
+                {
+                    if (string.IsNullOrEmpty(textBox.Text))
+                    {
+                        MessageBox.Show("Name is required!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        prompt.DialogResult = DialogResult.Retry;
+                    }
+                    else
+                    {
+                        if (!Catalog.Lists.Select(x => x.Name).Contains(textBox.Text))
+                        {
+                            var fileName = Settings.LocalPLFolder + "\\" + textBox.Text + ".csv";
+                            var fs = File.Create(fileName);
+                            fs.Close();
+                            Catalog.Lists.Add(new PlayList(textBox.Text));
+                            LocalPLsLV.Items.Add(textBox.Text);
+                            prompt.Close();
+                        }
+                        else
+                        {
+                            MessageBox.Show(textBox.Text + " playlist already exists", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            prompt.DialogResult = DialogResult.Retry;
+                        }
+
+                    }
+                };
                 prompt.Controls.Add(textBox);
                 prompt.Controls.Add(confirmation);
                 prompt.Controls.Add(textLabel);
                 prompt.AcceptButton = confirmation;
-
-                if (prompt.ShowDialog() == DialogResult.OK)
+                var res = DialogResult.Retry;
+                do
                 {
-                    if (!Catalog.Lists.Select(x => x.Name).Contains(textBox.Text))
-                    {
-                        var fileName = Settings.LocalPLFolder + "\\" + textBox.Text + ".csv";
-                        var fs = File.Create(fileName);
-                        fs.Close();
-                        var newPl = new PlayList(textBox.Text);
-                        foreach (ListViewItem item in PlaylistMediaLV.Items)
-                        {
-                            newPl.Items.Add(new MediaItem(item.SubItems[0].Text, item.SubItems[1].Text));
-                        }
-                        Catalog.Lists.Add(newPl);
-                        PlaylistMediaLbl.Text = newPl.Name;
-                        LocalPLsLV.Items.Add(newPl.Name);
-                        WriteToFiles();
-                    }
-                    else
-                    {
-                        MessageBox.Show(textBox.Text + " playlist already exists", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    }
+                    res = prompt.ShowDialog();
+                } while (res == DialogResult.Retry);
+
+                if (res == DialogResult.OK)
+                {
+                    UpdateAllMediaLVContext();
+                }
+                else if(res == DialogResult.Cancel)
+                {
+                    PlaylistMediaLV.Items.Clear();
                 }
             }
             // there are some pls to delete
@@ -380,7 +407,7 @@ namespace PlayListEditor
             {
                 foreach (var file in Directory.GetFiles(Settings.LocalPLFolder, "*.csv"))
                 {
-                    if(!Catalog.Lists.Select(l => l.Name).Contains(Path.GetFileNameWithoutExtension(file)))
+                    if(!Catalog.Lists.Select(l => l.Name).Contains(file))
                     {
                         GC.Collect();
                         GC.WaitForPendingFinalizers();
@@ -408,32 +435,35 @@ namespace PlayListEditor
             IsToSave = false;
             deletePB.Visible = false;
         }
-
-      
-
+        
         private void LocalPLsLV_ItemDrag(object sender, ItemDragEventArgs e)
         {
+            Settings.DefPLs();
+            if (PrevSelectedLocalPL != null && PrevSelectedLocalPL.Index != -1)
+            {
+                LocalPLsLV.Items[PrevSelectedLocalPL.Index].Selected = true;
+            }
             ListViewItem item = (ListViewItem)e.Item;
             var pl = Catalog.Lists.Where(l => l.Name == item.Text).First();
 
             PlaylistMediaLV.DoDragDrop(item, DragDropEffects.Copy); // just for copying effect
 
             PlaylistMediaLV.Items.AddRange(pl.Items.Select(l => new ListViewItem(new string[] { l.Name, l.Length })).ToArray()); ;
-            
-            IsToSave = true;
+                        
             TimeSpan totalDuration = default;
             foreach (ListViewItem i in PlaylistMediaLV.Items)
             {
                 totalDuration += TimeSpan.Parse(i.SubItems[1].Text);
+                IsToSave = true;
             }
             PlaylistMediaDurationLbl.Text = $"{(int)totalDuration.TotalHours}:{(int)totalDuration.Minutes}:{totalDuration.Seconds:00}";
-
-            LocalPLsLV.Items[PrevSelectedLocalPL.Index].Selected = true;
+            LPLLastActionDrag = true;
+           
         }
 
         private void UpdatePB_Click(object sender, EventArgs e)
         {
-            CheckDefFiles();
+            Settings.DefPLs();
             LoadCatalogFromCSVs();
             LoadMedia();
             LoadListViews();
@@ -447,11 +477,22 @@ namespace PlayListEditor
             IsToSave = false;
         }
 
-
-        private void LocalPLsLV_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void LocalPLsLV_MouseClick(object sender, MouseEventArgs e)
         {
             var item = LocalPLsLV.GetItemAt(e.X, e.Y);
-            if (item != null)
+            item.Selected = false;
+            LPLLastActionDrag = false;
+        }
+
+        private void PlaylistMediaLV_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            activeListView = PlaylistMediaLV;
+        }
+
+        private void LocalPLsLV_MouseUp(object sender, MouseEventArgs e)
+        {
+            var item = LocalPLsLV.GetItemAt(e.X, e.Y);
+            if (item != null && LPLLastActionDrag == false)
             {
                 activeListView = LocalPLsLV;
                 PrevSelectedLocalPL = item;
@@ -472,15 +513,26 @@ namespace PlayListEditor
             }
         }
 
-        private void LocalPLsLV_MouseClick(object sender, MouseEventArgs e)
+        private void LocalPLsLV_MouseDown(object sender, MouseEventArgs e)
         {
-            var item = LocalPLsLV.GetItemAt(e.X, e.Y);
-            item.Selected = false;
+            LPLLastActionDrag = false;
+            mouseDown = true;
         }
 
-        private void PlaylistMediaLV_SelectedIndexChanged(object sender, EventArgs e)
+        private void LocalPLsLV_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            activeListView = PlaylistMediaLV;
+            if (mouseDown && e.IsSelected)
+            {
+                e.Item.Selected = false;
+                e.Item.Focused = false;
+                mouseDown = false;
+                if (PrevSelectedLocalPL != null && PrevSelectedLocalPL.Index != -1)
+                {
+                    LocalPLsLV.Items[PrevSelectedLocalPL.Index].Selected = true;
+                }
+            }
+           // e.IsSelected
         }
+
     }
 }
