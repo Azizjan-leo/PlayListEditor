@@ -226,6 +226,7 @@
             this.PlaylistMediaLV.View = System.Windows.Forms.View.Details;
             this.PlaylistMediaLV.SelectedIndexChanged += new System.EventHandler(this.PlaylistMediaLV_SelectedIndexChanged);
             this.PlaylistMediaLV.DragEnter += new System.Windows.Forms.DragEventHandler(this.PlaylistMediaLV_DragEnter);
+            this.PlaylistMediaLV.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PlaylistMediaLV_MouseDown);
             // 
             // NameColumn
             // 

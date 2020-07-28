@@ -32,14 +32,14 @@ namespace PlayListEditor
 
         private static readonly string[] defPLs = new[]
         {
-            "Default.csv",
             "Sun.csv",
             "Mon.csv",
             "Tue.csv",
             "Wed.csv",
             "Thu.csv",
             "Fri.csv",
-            "Sat.csv"
+            "Sat.csv",
+            "Default.csv"
         };
 
         public static readonly string[] AllowedExtensions = new[] { ".mp4", ".png" };
