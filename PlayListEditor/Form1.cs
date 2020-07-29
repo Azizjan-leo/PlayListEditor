@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -53,6 +52,12 @@ namespace PlayListEditor
                 PlaylistMediaLV.Items.Remove(lvi);
                 pl?.Items.Remove(pl.Items.Where(i => i.Name == lvi.SubItems[0].Text).FirstOrDefault());
             }
+            TimeSpan totalDuration = default;
+            foreach (ListViewItem item in PlaylistMediaLV.Items)
+            {
+                totalDuration += TimeSpan.Parse(item.SubItems[1].Text);
+            }
+            PlaylistMediaDurationLbl.Text = $"{(int)totalDuration.TotalHours}:{(int)totalDuration.Minutes}:{totalDuration.Seconds:00}";
             LoadListViews();
             IsToSave = true;
         }
@@ -74,7 +79,6 @@ namespace PlayListEditor
         /// </summary>
         private void LoadMedia()
         {
-            Catalog.Source = new PlayList(null); // Just to cause the 'set' accessor to be called
             // Let's check if some of the playlists contains elements that doesn't in the Source
            
             for (int j = 0; j < Catalog.Lists.Count; j++)
@@ -211,7 +215,7 @@ namespace PlayListEditor
             LocalPLsLV.Items.Clear();
             LocalPLsLV.Items.AddRange(Settings.DefPLs().Select(l => new ListViewItem { Text = l.Replace(".csv", string.Empty)}).ToArray());
             LocalPLsLV.Items.AddRange(Catalog.Lists.Where(l => !Settings.DefPLs().Contains(l.Name + ".csv")).Select(l => new ListViewItem { Text = l.Name }).ToArray());
-            LocalPLDurationLbl.Text = $"{(int)Catalog.Duration.TotalHours}:{(int)Catalog.Duration.Minutes}:{Catalog.Duration.Seconds:00}";
+            //LocalPLDurationLbl.Text = $"{(int)Catalog.Duration.TotalHours}:{(int)Catalog.Duration.Minutes}:{Catalog.Duration.Seconds:00}";
 
             // for the playlist media
             if (PlaylistMediaLbl.Text != "Playlist media")
@@ -221,10 +225,8 @@ namespace PlayListEditor
                 {
                     PlaylistMediaLV.Items.Clear();
                     PlaylistMediaLV.Items.AddRange(pl.Items.Select(l => new ListViewItem(new string[] { l.Name, l.Length })).ToArray());
-                    LocalPLDurationLbl.Text = $"{(int)pl.Duration.TotalHours}:{(int)pl.Duration.Minutes}:{pl.Duration.Seconds:00}";
-
+                    PlaylistMediaDurationLbl.Text = $"{(int)pl.Duration.TotalHours}:{(int)pl.Duration.Minutes}:{pl.Duration.Seconds:00}";
                 }
-
             }
         }
 
@@ -313,7 +315,6 @@ namespace PlayListEditor
                 PlaylistMediaLbl.Text = "Playlist media";
                 PlaylistMediaLV.Items.Clear();
                 PlaylistMediaDurationLbl.Text = string.Empty;
-                LocalPLDurationLbl.Text = $"{(int)Catalog.Duration.TotalHours}:{(int)Catalog.Duration.Minutes}:{Catalog.Duration.Seconds:00}";
                 
             }
             else if (activeListView.Equals(PlaylistMediaLV))
@@ -324,7 +325,14 @@ namespace PlayListEditor
                     pl.Items.RemoveAll(i => i.Name == item.SubItems[0].Text);
                     PlaylistMediaLV.Items.Remove(item);
                 }
+                TimeSpan totalDuration = default;
+                foreach (ListViewItem item in PlaylistMediaLV.Items)
+                {
+                    totalDuration += TimeSpan.Parse(item.SubItems[1].Text);
+                }
+                PlaylistMediaDurationLbl.Text = $"{(int)totalDuration.TotalHours}:{(int)totalDuration.Minutes}:{totalDuration.Seconds:00}";
             }
+
             activeListView = null;
             deletePB.Visible = false;
             IsToSave = true;
@@ -509,6 +517,7 @@ namespace PlayListEditor
             AllMediaListView.SelectedItems.Clear();
             LocalPLsLV.SelectedItems.Clear();
             PlaylistMediaLbl.Text = "Playlist media";
+            PlaylistMediaDurationLbl.Text = string.Empty;
             PlaylistMediaLV.Items.Clear();
             deletePB.Visible = false;
             activeListView = null;
@@ -586,6 +595,12 @@ namespace PlayListEditor
                     PlayListMediaContextMenu.Show(Cursor.Position);
                 }
             }
+        }
+
+        private void UploadPB_Click(object sender, EventArgs e)
+        {
+            Catalog.Upload();
+            MessageBox.Show("All the local playlists were successfully uploaded to the remote machine!", "Done!", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

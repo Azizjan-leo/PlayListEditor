@@ -73,6 +73,16 @@ namespace PlayListEditor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Blue_Arrow_Up {
+            get {
+                object obj = ResourceManager.GetObject("Blue_Arrow_Up", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap button_cancel {
             get {
                 object obj = ResourceManager.GetObject("button_cancel", resourceCulture);
@@ -96,6 +106,16 @@ namespace PlayListEditor.Properties {
         internal static System.Drawing.Bitmap save {
             get {
                 object obj = ResourceManager.GetObject("save", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Upload_Button {
+            get {
+                object obj = ResourceManager.GetObject("Upload-Button", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

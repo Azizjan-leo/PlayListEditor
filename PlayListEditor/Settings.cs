@@ -7,11 +7,7 @@ namespace PlayListEditor
     public static class Settings
     {
         public static string[] DefPLs() 
-        {
-            if (!Directory.Exists(remotePLFolder))
-            {
-                Directory.CreateDirectory(remotePLFolder);
-            }
+        { 
             if (!Directory.Exists(mediaFolder))
             {
                 Directory.CreateDirectory(mediaFolder);
@@ -67,7 +63,18 @@ namespace PlayListEditor
             }    
         }
 
-        
+        public static string RemotePLFolder
+        {
+            get
+            {
+                if (!Directory.Exists(remotePLFolder))
+                {
+                    Directory.CreateDirectory(remotePLFolder);
+                }
+                return remotePLFolder;
+            }
+        }
+
         private static readonly string remotePLFolder = String.Format(@"{0}\RemotePlaylists\", Application.StartupPath);
         private static readonly string mediaFolder = String.Format(@"{0}\Media\", Application.StartupPath);
         private static readonly string localPLFolder = String.Format(@"{0}\LocalPlaylists\", Application.StartupPath);

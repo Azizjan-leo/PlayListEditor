@@ -74,8 +74,7 @@ namespace PlayListEditor
       
         public static PlayList Source 
         {
-            get { return _source; }
-            set
+            get 
             {
                 _source.Items.Clear();
                 var files = Directory
@@ -95,10 +94,10 @@ namespace PlayListEditor
                             duration = TimeSpan.FromTicks((long)t);
                         }
                     }
-                   _source.Items.Add(new MediaItem(
-                   Path.GetFileName(file),
-                   duration
-                   ));
+                    _source.Items.Add(new MediaItem(
+                    Path.GetFileName(file),
+                    duration
+                    ));
                     totalDuration += duration;
                 }
                 // Write to Source.csv
@@ -109,8 +108,19 @@ namespace PlayListEditor
                     sb.AppendLine(item.ToCSVLine());
                 }
                 File.WriteAllText(sourceFile, sb.ToString());
+                return _source;
             }
         }
 
+        internal static void Upload()
+        {
+            DirectoryInfo di = new DirectoryInfo(Settings.RemotePLFolder);
+            foreach (FileInfo file in di.GetFiles())
+            {
+                file.Delete();
+            }
+            foreach (var file in Directory.GetFiles(Settings.LocalPLFolder))
+                File.Copy(file, Path.Combine(Settings.RemotePLFolder, Path.GetFileName(file)));
+        }
     }
 }
