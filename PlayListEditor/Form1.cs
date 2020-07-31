@@ -157,7 +157,7 @@ namespace PlayListEditor
                         newItem.Focused = true;
                         PlaylistMediaLbl.Text = textBox.Text;
                         PlaylistMediaLV.Items.Clear();
-                        PlaylistMediaDurationLbl.Text = string.Empty;
+                        PlaylistMediaDurationLbl.Text = "0:0:00";
                         prompt.Close();
                     }
                     else
@@ -568,6 +568,7 @@ namespace PlayListEditor
                 PlaylistMediaLV.Items.Clear();
                 PlaylistMediaLbl.Text = "Playlist media";
                 deletePB.Enabled = false;
+                PlaylistMediaDurationLbl.Text = string.Empty;
             }
         }
 
