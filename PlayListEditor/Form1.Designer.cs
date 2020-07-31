@@ -47,6 +47,8 @@
             this.savePB = new System.Windows.Forms.PictureBox();
             this.AddPlPB = new System.Windows.Forms.PictureBox();
             this.updatePB = new System.Windows.Forms.PictureBox();
+            this.PLMediaItemMovingUpBtn = new System.Windows.Forms.Button();
+            this.PLMediaItemMovingDownBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.UploadPB)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.deletePB)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.savePB)).BeginInit();
@@ -57,7 +59,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(501, 9);
+            this.label1.Location = new System.Drawing.Point(502, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(92, 15);
             this.label1.TabIndex = 1;
@@ -201,6 +203,7 @@
             // deletePB
             // 
             this.deletePB.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.deletePB.Enabled = false;
             this.deletePB.Image = global::PlayListEditor.Properties.Resources.button_cancel;
             this.deletePB.Location = new System.Drawing.Point(751, 205);
             this.deletePB.Name = "deletePB";
@@ -208,11 +211,11 @@
             this.deletePB.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.deletePB.TabIndex = 16;
             this.deletePB.TabStop = false;
-            this.deletePB.Visible = false;
             this.deletePB.Click += new System.EventHandler(this.DeletePB_Click);
             // 
             // savePB
             // 
+            this.savePB.Enabled = false;
             this.savePB.Image = global::PlayListEditor.Properties.Resources.save;
             this.savePB.Location = new System.Drawing.Point(751, 161);
             this.savePB.Name = "savePB";
@@ -220,7 +223,6 @@
             this.savePB.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.savePB.TabIndex = 15;
             this.savePB.TabStop = false;
-            this.savePB.Visible = false;
             this.savePB.Click += new System.EventHandler(this.SavePB_Click);
             // 
             // AddPlPB
@@ -245,12 +247,36 @@
             this.updatePB.TabStop = false;
             this.updatePB.Click += new System.EventHandler(this.UpdatePB_Click);
             // 
+            // PLMediaItemMovingUpBtn
+            // 
+            this.PLMediaItemMovingUpBtn.Location = new System.Drawing.Point(441, 5);
+            this.PLMediaItemMovingUpBtn.Name = "PLMediaItemMovingUpBtn";
+            this.PLMediaItemMovingUpBtn.Size = new System.Drawing.Size(19, 22);
+            this.PLMediaItemMovingUpBtn.TabIndex = 21;
+            this.PLMediaItemMovingUpBtn.Text = "↑";
+            this.PLMediaItemMovingUpBtn.UseVisualStyleBackColor = true;
+            this.PLMediaItemMovingUpBtn.Visible = false;
+            this.PLMediaItemMovingUpBtn.Click += new System.EventHandler(this.PLMediaItemMovingUpBtn_Click);
+            // 
+            // PLMediaItemMovingDownBtn
+            // 
+            this.PLMediaItemMovingDownBtn.Location = new System.Drawing.Point(466, 5);
+            this.PLMediaItemMovingDownBtn.Name = "PLMediaItemMovingDownBtn";
+            this.PLMediaItemMovingDownBtn.Size = new System.Drawing.Size(19, 22);
+            this.PLMediaItemMovingDownBtn.TabIndex = 22;
+            this.PLMediaItemMovingDownBtn.Text = "↓";
+            this.PLMediaItemMovingDownBtn.UseVisualStyleBackColor = true;
+            this.PLMediaItemMovingDownBtn.Visible = false;
+            this.PLMediaItemMovingDownBtn.Click += new System.EventHandler(this.PLMediaItemMovingDownBtn_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(799, 442);
+            this.Controls.Add(this.PLMediaItemMovingDownBtn);
+            this.Controls.Add(this.PLMediaItemMovingUpBtn);
             this.Controls.Add(this.UploadPB);
             this.Controls.Add(this.PlaylistMediaLV);
             this.Controls.Add(this.LocalPLsLV);
@@ -300,6 +326,8 @@
         private System.Windows.Forms.ColumnHeader NameColumn;
         private System.Windows.Forms.ColumnHeader LenghtColumn;
         private System.Windows.Forms.PictureBox UploadPB;
+        private System.Windows.Forms.Button PLMediaItemMovingUpBtn;
+        private System.Windows.Forms.Button PLMediaItemMovingDownBtn;
     }
 }
 

@@ -1,45 +1,30 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace PlayListEditor
+namespace ExtensionMethods
 {
-    public class CustomListView : ListView
+    public static class Extensions 
     {
-        public event EventHandler<CustomEventArgs> UpdateListViewCounts;
+        public enum MoveDirection { Up = -1, Down = 1 };
+        
+        internal static bool MoveListviewItems(ListView sender, MoveDirection direction)
+        {
+            int dir = (int)direction;
 
-        public void ClearList()
-        {
-            this.Items.Clear();
-            CustomEventArgs e = new CustomEventArgs(Items.Count);
-            UpdateListViewCounts(this, e);
-        }
-        public void AddItem(ListViewItem item)
-        {
-            // You may have to modify this depending on the
-            // Complexity of your Items
-            this.Items.Add(item);
-            CustomEventArgs e = new CustomEventArgs(Items.Count);
-            UpdateListViewCounts(this, e);
-        }
-        public void RemoveItem(ListViewItem item)
-        {
-            // You may have to modify this depending on the
-            // Complexity of your Items
-            this.Items.Remove(item);
-            CustomEventArgs e = new CustomEventArgs(Items.Count);
-            UpdateListViewCounts(this, e);
-        }
-    }
-    public class CustomEventArgs : EventArgs
-    {
-        private int _count;
-        public CustomEventArgs(int count)
-        {
-            _count = count;
-        }
-        public int Count
-        {
-            get { return _count; }
+            bool valid = sender.SelectedItems.Count > 0 &&
+                            ((direction == MoveDirection.Down && (sender.SelectedItems[sender.SelectedItems.Count - 1].Index < sender.Items.Count - 1))
+                        || (direction == MoveDirection.Up && (sender.SelectedItems[0].Index > 0)));
+
+            if (valid)
+            {
+                foreach (ListViewItem item in sender.SelectedItems)
+                {
+                    int index = item.Index + dir;
+                    sender.Items.RemoveAt(item.Index);
+                    sender.Items.Insert(index, item);
+                }
+            }
+            return valid;
         }
     }
 }
