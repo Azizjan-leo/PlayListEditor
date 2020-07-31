@@ -156,6 +156,7 @@ namespace PlayListEditor
                         newItem.Selected = true;
                         newItem.Focused = true;
                         PlaylistMediaLbl.Text = textBox.Text;
+                        PlaylistMediaLV.Items.Clear();
                         prompt.Close();
                     }
                     else
